@@ -1431,7 +1431,6 @@ document.addEventListener('pointerdown', e=>{
   ghost.style.cssText=`display:block;left:${e.clientX-dOX}px;top:${e.clientY-dOY}px;touch-action:none;`;
   wrap.classList.add('hide');
   dIdx=i;
-  if(activePieceIdx===i){ activePieceIdx=-1; }
   sndPickup();
 }, {passive:false, capture:true});
 
@@ -1490,6 +1489,7 @@ function endDrag(cx,cy) {
   if(lx>=0&&lx<=FS&&ly>=0&&ly<=FS && inPoly(lx/FS,ly/FS,pieces[i].poly)) {
     // Only place if rotation matches (rot === 0 means aligned with original)
     if(pieces[i].rot===0) {
+      if(activePieceIdx===i) activePieceIdx=-1;
       sndPlace(); place(i);
     } else {
       // wrong rotation — bounce back with red flash hint
@@ -1508,6 +1508,7 @@ function endDrag(cx,cy) {
     }
   } else {
     // wrong area — only penalise if dropped inside the field bounds
+    if(activePieceIdx===i) activePieceIdx=-1;
     const inField = lx>=0 && lx<=FS && ly>=0 && ly<=FS;
     pieces[i].wrap.classList.remove('hide');
     if(inField) {
