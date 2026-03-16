@@ -689,7 +689,7 @@ function genPolys(count,seed) {
   const r=rng(seed); let ps=[[[0,0],[1,0],[1,1],[0,1]]]; let s=0;
   while(ps.length<count&&s++<500){
     ps.sort((a,b)=>area(b)-area(a));
-    const res=split(ps[0],r); if(res)ps.splice(0,1,...res); else break;
+    const res=split(ps[0],r); if(res){ps.splice(0,1,...res);}else{ const res2=split(ps[Math.min(1,ps.length-1)],r); if(res2)ps.splice(Math.min(1,ps.length-1),1,...res2); else break; }
   }
   return ps.slice(0,count);
 }
@@ -832,8 +832,9 @@ function build(level) {
   // clear curve cache so new level gets fresh curves
 
   FS = fieldWrap.clientWidth;
-  const count=COUNTS[level]; total=count;
+  const count=COUNTS[level];
   const polys=genPolys(count, level*9973+42);
+  total=polys.length;
   const TH=Math.min(80,Math.floor(FS*.18));
 
   pieces = polys.map((poly,i)=>{
