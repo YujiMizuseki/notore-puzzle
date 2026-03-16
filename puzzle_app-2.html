@@ -798,11 +798,12 @@ function updateTitleBest() {
 }
 
 function calcScore(level, elapsedSec) {
-  // 1秒ごとに一定量減る線形式
+  // 高レベルほど指数的に高得点
   const lv1        = level + 1;
-  const maxScore   = lv1 * 500;          // 満点
-  const decayPerSec = lv1 * 8;           // 1秒あたりの減点
-  const minScore   = lv1 * 30;           // 下限
+  const scale      = Math.pow(lv1, 1.5); // LV1:1× LV10:31.6× LV25:125×
+  const maxScore   = Math.round(scale * 500);   // LV1:500  LV10:15800  LV25:62500
+  const decayPerSec = Math.round(scale * 8);    // 同比率で減衰
+  const minScore   = Math.round(scale * 30);    // 同比率の下限
   return Math.max(minScore, maxScore - Math.floor(elapsedSec * decayPerSec));
 }
 // floating score popup (used for clear bonus)
