@@ -495,10 +495,22 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
 .debug-lv-btn:hover, .debug-lv-btn:active {
   background: #f0c040; color: #1a0a00;
 }
-#debug-inf-label {
-  font-family: monospace; font-size: .75rem;
-  color: #4ecdc4; margin-top: 8px; letter-spacing: .1em;
+#debug-time-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
 }
+.debug-time-btn {
+  font-family: monospace; font-size: .78rem;
+  background: #3a2810; color: #f0c040;
+  border: 1px solid rgba(240,192,64,.4);
+  border-radius: 4px; padding: 6px 2px;
+  cursor: pointer; touch-action: manipulation;
+}
+.debug-time-btn.active {
+  background: #f0c040; color: #1a0a00;
+}
+.debug-time-btn:hover { background: #f0c040; color: #1a0a00; }
 
 .score-popup {
   position:fixed; pointer-events:none; z-index:9000;
@@ -641,9 +653,10 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
       <button id="start-btn">ゲームスタート</button>
   <button id="debug-toggle">設定</button>
   <div id="debug-panel">
-    <p class="debug-label">[ DEBUG ] 面を選んでスタート</p>
+    <p class="debug-label">面を選んでスタート</p>
     <div id="debug-lv-grid"></div>
-    <p id="debug-inf-label">⏱ TIME 無制限</p>
+    <p class="debug-label" style="margin-top:12px;">制限時間</p>
+    <div id="debug-time-grid"></div>
   </div>
   </div>
 </div>
@@ -768,7 +781,7 @@ let dOX = 0, dOY = 0; // drag offset
 let pendingTimeouts = []; // track setTimeout IDs to cancel on level change
 let totalScore  = 0;  // cumulative score across levels
 let levelScore  = 0;  // score earned this level
-const TIME_LIMIT = 180; // seconds per level
+let TIME_LIMIT = 180; // seconds per level (settable via debug)
 let hiScore = parseInt(localStorage.getItem('puzzleHiScore')||'0',10);
 let hiLevel = parseInt(localStorage.getItem('puzzleHiLevel')||'0',10);
 function saveHi(score, level) {
@@ -1719,8 +1732,8 @@ function startTimer(){
     const rem=TIME_LIMIT-s;
     const timerEl=document.getElementById('timer');
     if(rem<=30) timerEl.classList.add('urgent'); else timerEl.classList.remove('urgent');
-    document.getElementById('tval').textContent = debugMode ? '∞' : (rem > 0 ? rem : 0);
-    if(!debugMode && s>=TIME_LIMIT){ clearInterval(timerID); onTimeout(); }
+    document.getElementById('tval').textContent = (TIME_LIMIT===0) ? '∞' : (rem > 0 ? rem : 0);
+    if(TIME_LIMIT>0 && s>=TIME_LIMIT){ clearInterval(timerID); onTimeout(); }
   },500);
 }
 function stopTimer(){clearInterval(timerID);}
@@ -1818,10 +1831,27 @@ function onClear(){ sndClear();
     grid.appendChild(btn);
   }
 
+  // Time select buttons
+  const timeGrid = document.getElementById('debug-time-grid');
+  const timeOptions = [{label:'60s',val:60},{label:'120s',val:120},{label:'180s',val:180},{label:'240s',val:240},{label:'∞',val:0}];
+  let selectedTimeBtn = null;
+  timeOptions.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'debug-time-btn';
+    btn.textContent = opt.label;
+    if(opt.val === 180){ btn.classList.add('active'); selectedTimeBtn = btn; }
+    btn.addEventListener('click', ()=>{
+      if(selectedTimeBtn) selectedTimeBtn.classList.remove('active');
+      selectedTimeBtn = btn; btn.classList.add('active');
+      TIME_LIMIT = opt.val;
+      debugMode = (opt.val === 0);
+    });
+    timeGrid.appendChild(btn);
+  });
+
   tog.addEventListener('click', ()=>{
-    debugMode = !debugMode;
-    tog.classList.toggle('on', debugMode);
-    panel.classList.toggle('show', debugMode);
+    const showing = panel.classList.toggle('show');
+    tog.classList.toggle('on', showing);
   });
 })();
 
