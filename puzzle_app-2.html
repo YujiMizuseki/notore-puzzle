@@ -450,16 +450,19 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
 
 /* ===== DEBUG MODE ===== */
 #debug-toggle {
-  position: absolute; bottom: 14px; right: 14px;
-  font-size: .68rem; font-family: monospace;
-  background: transparent; border: 1px solid rgba(184,151,58,.35);
-  color: rgba(184,151,58,.5); border-radius: 4px;
-  padding: 3px 8px; cursor: pointer; letter-spacing: .05em;
-  touch-action: manipulation;
+  font-family:'Noto Serif JP',serif; font-size:1.05rem; letter-spacing:.3em;
+  padding:16px 0; width:100%;
+  border: 1.5px solid #b8973a;
+  background: transparent;
+  color: #2c1f14;
+  border-radius: 8px;
+  cursor:pointer; touch-action:manipulation;
+  margin-top: 10px;
 }
 #debug-toggle.on {
-  background: #2c1f14; border-color: #f0c040;
+  background: #2c1f14;
   color: #f0c040;
+  border-color: #f0c040;
 }
 #debug-panel {
   display: none;
@@ -636,7 +639,7 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
       </div>
     </div>
       <button id="start-btn">ゲームスタート</button>
-  <button id="debug-toggle" title="DEBUG">DEBUG</button>
+  <button id="debug-toggle">設定</button>
   <div id="debug-panel">
     <p class="debug-label">[ DEBUG ] 面を選んでスタート</p>
     <div id="debug-lv-grid"></div>
