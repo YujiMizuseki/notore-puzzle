@@ -1558,18 +1558,18 @@ function bgmNote(freq, t, dur, vol, type) {
 function scheduleBGMLoop() {
   if (!bgmPlaying || bgmMuted) return;
   const ctx = ac();
-  var t0 = ctx.currentTime + 0.05;
+  var t0 = ctx.currentTime + 0.15;  // 先読みを150msに増やす
   var beat = 60 / BGM_BPM;
   BGM_SCORE.forEach(function(n) {
     bgmNote(n[0], t0 + n[1] * beat, n[2], n[3], n[4]);
   });
   var loopMs = BGM_LEN_BEATS * beat * 1000;
-  bgmLoopTimer = setTimeout(scheduleBGMLoop, loopMs - 200);
+  bgmLoopTimer = setTimeout(scheduleBGMLoop, loopMs - 800); // 800ms前に次をスケジュール
 }
 function startBGM() {
   if (bgmPlaying) return;
   bgmPlaying = true; bgmMuted = false;
-  scheduleBGMLoop();
+  ac().resume().then(scheduleBGMLoop);
   document.getElementById('bgm-btn').classList.remove('muted');
 }
 function stopBGM() {
@@ -1587,6 +1587,12 @@ function toggleBGM() {
     document.getElementById('bgm-btn').classList.add('muted');
   }
 }
+// 画面復帰時にAudioContextを再開（スリープ後のプチ切れ対策）
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && _ac && _ac.state === 'suspended') {
+    _ac.resume();
+  }
+});
 document.getElementById('bgm-btn').addEventListener('click', function(){ toggleBGM(); });
 document.addEventListener('pointerdown', function(){ if (!bgmPlaying && !bgmMuted) startBGM(); }, { once: true });
 
