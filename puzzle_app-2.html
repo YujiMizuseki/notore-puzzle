@@ -28,36 +28,36 @@ body {
   -webkit-user-select: none;
 }
 header {
-  width: 100%; text-align: center; padding: 16px 0 10px;
+  width: 100%; text-align: center; padding: 8px 0 6px;
   border-bottom: 3px solid #b8973a;
   background: linear-gradient(#fff9f0, #f5f0e8);
   position: relative;
 }
-header h1 { font-size:1.8rem; font-weight:700; letter-spacing:.2em; color:#2c1f14; }
-header p  { font-size:1rem; color:#b8973a; letter-spacing:.2em; margin-top:3px; }
+header h1 { font-size:1.5rem; font-weight:700; letter-spacing:.2em; color:#2c1f14; }
+header p  { font-size:.9rem; color:#b8973a; letter-spacing:.2em; margin-top:2px; }
 
 #level-bar {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: 10px 16px;
+  padding: 5px 16px;
 }
 #level-display {
   font-family: 'Noto Serif JP', serif;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: .15em;
   color: #2c1f14;
 }
 #level-sub {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #b8973a;
   letter-spacing: .12em;
 }
 
 
-#timer { font-size:1.4rem; font-weight:700; letter-spacing:.12em; margin-bottom:6px; color:#2c1f14; }
+#timer { font-size:1.2rem; font-weight:700; letter-spacing:.12em; margin-bottom:3px; color:#2c1f14; }
 #timer span { color:#2c1f14; }
 
 /* Field: square */
@@ -78,12 +78,12 @@ header p  { font-size:1rem; color:#b8973a; letter-spacing:.2em; margin-top:3px; 
 /* Tray */
 #tray {
   width: min(92vw, 400px);
-  min-height: 90px;
+  min-height: 70px;
   background: #ede5d4;
   border: 2px solid #c8bfa8; border-top: none;
   border-radius: 0 0 6px 6px;
-  padding: 12px 10px;
-  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  padding: 8px 8px;
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
   touch-action: none;
 }
 .piece-wrap {
@@ -108,8 +108,8 @@ header p  { font-size:1rem; color:#b8973a; letter-spacing:.2em; margin-top:3px; 
 }
 
 #hint-btn {
-  margin-top:12px; font-family:'Noto Serif JP',serif;
-  font-size:1.1rem; letter-spacing:.1em; padding:14px 28px;
+  margin-top:6px; font-family:'Noto Serif JP',serif;
+  font-size:1rem; letter-spacing:.1em; padding:10px 24px;
   border:2px solid #b8973a; background:transparent; color:#7a5a10;
   border-radius:4px; cursor:pointer; touch-action:manipulation;
 }
@@ -611,12 +611,12 @@ header p  { font-size:1rem; color:#b8973a; letter-spacing:.2em; margin-top:3px; 
 #bgm-btn.muted { opacity: .4; }
 #score-bar {
   display: flex; align-items: center; justify-content: center;
-  gap: 20px; padding: 4px 16px 8px;
+  gap: 16px; padding: 2px 16px 4px;
   font-family: 'Noto Serif JP', serif;
   font-size: .95rem; color: #2c1f14; letter-spacing: .1em;
 }
-#score-bar .s-label { color: #8a6820; font-size: 1rem; }
-#score-bar .s-val   { font-weight: 700; font-size: 1.3rem; min-width: 4ch; text-align: right; color: #2c1f14; }
+#score-bar .s-label { color: #8a6820; font-size: .95rem; }
+#score-bar .s-val   { font-weight: 700; font-size: 1.2rem; min-width: 4ch; text-align: right; color: #2c1f14; }
 #score-bar .s-sep   { color: #c8bfa8; }
 
 </style>
