@@ -801,9 +801,9 @@ function calcScore(level, elapsedSec) {
   // 高レベルほど指数的に高得点
   const lv1        = level + 1;
   const scale      = Math.pow(lv1, 1.5); // LV1:1× LV10:31.6× LV25:125×
-  const maxScore   = Math.round(scale * 500);   // LV1:500  LV10:15800  LV25:62500
-  const decayPerSec = Math.round(scale * 8);    // 同比率で減衰
-  const minScore   = Math.round(scale * 30);    // 同比率の下限
+  const maxScore   = Math.round(scale * 1000);  // LV1:1000  LV10:31600  LV25:125000
+  const decayPerSec = Math.round(scale * 16);   // 同比率で減衰
+  const minScore   = Math.round(scale * 60);    // 同比率の下限
   return Math.max(minScore, maxScore - Math.floor(elapsedSec * decayPerSec));
 }
 // floating score popup (used for clear bonus)
