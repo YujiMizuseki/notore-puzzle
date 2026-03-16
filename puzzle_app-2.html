@@ -1466,19 +1466,23 @@ function endDrag(cx,cy) {
       },150);
     }
   } else {
-    // wrong area — bounce back with red flash hint
-    sndWrong(); applyPenalty(cx, cy); pieces[i].wrap.classList.remove('hide');
-    pieces[i].wrap.style.transition='transform .15s';
-    pieces[i].wrap.style.transform='rotate(10deg)';
-    pieces[i].wrap.style.filter='drop-shadow(0 0 8px rgba(180,40,40,.8))';
-    setTimeout(()=>{
-      pieces[i].wrap.style.transform='rotate(-10deg)';
+    // wrong area — only penalise if dropped inside the field bounds
+    const inField = lx>=0 && lx<=FS && ly>=0 && ly<=FS;
+    pieces[i].wrap.classList.remove('hide');
+    if(inField) {
+      sndWrong(); applyPenalty(cx, cy);
+      pieces[i].wrap.style.transition='transform .15s';
+      pieces[i].wrap.style.transform='rotate(10deg)';
+      pieces[i].wrap.style.filter='drop-shadow(0 0 8px rgba(180,40,40,.8))';
       setTimeout(()=>{
-        pieces[i].wrap.style.transform='';
-        pieces[i].wrap.style.filter='drop-shadow(0 2px 6px rgba(0,0,0,.3))';
-        pieces[i].wrap.style.transition='';
+        pieces[i].wrap.style.transform='rotate(-10deg)';
+        setTimeout(()=>{
+          pieces[i].wrap.style.transform='';
+          pieces[i].wrap.style.filter='drop-shadow(0 2px 6px rgba(0,0,0,.3))';
+          pieces[i].wrap.style.transition='';
+        },150);
       },150);
-    },150);
+    }
   }
 }
 
