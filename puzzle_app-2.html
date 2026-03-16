@@ -263,6 +263,43 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   100% { opacity:0; transform:translateY(-52px) scale(.9); }
 }
 /* title illustration */
+.howto {
+  width: 100%; max-width: 360px;
+  background: rgba(184,151,58,.10);
+  border: 1px solid rgba(184,151,58,.45);
+  border-radius: 6px;
+  padding: 12px 16px 10px;
+  margin: 10px 0 10px;
+  text-align: left;
+}
+.howto-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: .82rem; font-weight: 700;
+  color: #b8973a; letter-spacing: .18em;
+  text-align: center; margin-bottom: 8px;
+}
+.howto ol {
+  margin: 0; padding-left: 1.4em;
+  list-style: none; counter-reset: howto-cnt;
+}
+.howto ol li {
+  counter-increment: howto-cnt;
+  font-family: 'Noto Serif JP', serif;
+  font-size: .82rem; color: #3a2810;
+  line-height: 1.65; margin-bottom: 4px;
+  padding-left: 0;
+}
+.howto ol li::before {
+  content: counter(howto-cnt) ". ";
+  color: #b8973a; font-weight: 700;
+  margin-right: 2px;
+}
+.howto-note {
+  font-family: 'Noto Serif JP', serif;
+  font-size: .75rem; color: #7a6040;
+  text-align: center; margin-top: 7px;
+  letter-spacing: .05em;
+}
 .title-illust-wrap {
   width: 160px; height: 160px;
   border-radius: 50%;
@@ -397,6 +434,16 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   <div class="best-box">
     <span class="bl">最高得点</span><span class="bv" id="title-hi-score">—</span>
     <span class="bl">最高面</span><span class="bv" id="title-hi-level">—</span>
+  </div>
+  <div class="howto">
+    <p class="howto-title">― 遊 び 方 ―</p>
+    <ol>
+      <li>トレイのピースをドラッグして<br>正しい枠の上で放す</li>
+      <li>ピースの<b>向き</b>が合っていないとはまらない<br>（タップで90°回転）</li>
+      <li>制限時間は <b>180秒</b>。速いほど高得点！</li>
+      <li>置き間違えると<b>マイナス点</b>になるので慎重に</li>
+    </ol>
+    <p class="howto-note">レベルが上がるほど得点UP 🌸</p>
   </div>
   <div class="title-illust-wrap">
     <img class="title-illust" src="00_ニッピコラーゲン100.png" alt="ニッピコラーゲン100" onerror="this.style.display='none'">
