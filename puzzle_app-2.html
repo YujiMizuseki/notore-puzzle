@@ -1466,11 +1466,14 @@ function endDrag(cx,cy) {
     // TAP: 1st tap = enlarge to 30%, 2nd tap on same = rotate
     pieces[i].wrap.classList.remove('hide');
     if(activePieceIdx !== i) {
-      // deactivate previous
+      // deactivate previous (reset BEFORE redraw so it draws at 20%)
       if(activePieceIdx >= 0 && activePieceIdx < pieces.length && !pieces[activePieceIdx].done) {
-        redrawTrayPiece(activePieceIdx);
+        const prev = activePieceIdx;
+        activePieceIdx = i;
+        redrawTrayPiece(prev);
+      } else {
+        activePieceIdx = i;
       }
-      activePieceIdx = i;
       redrawTrayPiece(i); // redraws at 30%
     } else {
       // 2nd tap: rotate
