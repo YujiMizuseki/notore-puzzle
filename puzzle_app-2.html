@@ -440,19 +440,6 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   border: 1.5px solid #b8973a;
 }
 #top-confirm-cancel:hover { background: #b8973a; color: #fff; }
-#piece-big-display {
-  display: none;
-  position: fixed;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 4000;
-  border: 3px solid #b8973a;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,.45);
-  background: #fff8f0;
-  cursor: pointer;
-}
 #bgm-btn {
   position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
   background: none; border: 1px solid #b8973a; border-radius: 50%;
@@ -550,7 +537,6 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   <button id="next-btn">次のレベルへ →</button>
 </div>
 
-<div id="piece-big-display" onclick="hideBigPiece()"></div>
 <div id="top-confirm-ov">
   <div id="top-confirm-box">
     <p>TOPへ戻りますか？</p>
@@ -911,7 +897,7 @@ function makeCvsFixed(origPoly, rot, TSZ, stroke, lw) {
 /* ═══════════════ REDRAW TRAY PIECE ════ */
 function redrawTrayPiece(i) {
   const p = pieces[i];
-  const TSZ = Math.round(FS * 0.20);
+  const TSZ = Math.round(FS * 0.30);
   // pass origPoly + rot so image maps correctly then rotates
   const newCvs = makeCvsFixed(p.origPoly, p.rot, TSZ, 'rgba(184,151,58,.7)', 1.5);
   newCvs.style.cssText = 'display:block;touch-action:none;';
@@ -926,7 +912,6 @@ function build(level) {
   clearPendingTimeouts();
   levelScore = 0; updateScoreDisplay();
   stopTimer(); placed=0; dIdx=-1; ghost.style.display='none';
-  if(typeof hideBigPiece==='function') hideBigPiece();
   fieldEl.innerHTML=''; trayEl.innerHTML='';
   // reset UI
   document.getElementById('tray').style.cssText = '';
@@ -1444,7 +1429,6 @@ document.addEventListener('pointerdown', e=>{
   ghost.style.cssText=`display:block;left:${e.clientX-dOX}px;top:${e.clientY-dOY}px;touch-action:none;`;
   wrap.classList.add('hide');
   dIdx=i;
-  hideBigPiece();
   sndPickup();
 }, {passive:false, capture:true});
 
@@ -1477,7 +1461,7 @@ function endDrag(cx,cy) {
   pieces.forEach(p=>{if(!p.done)drawSlotCvs(p.slotCvs,p.poly,FS,false);});
 
   if(!pointerMoved) {
-    // TAP → rotate 90° + show big
+    // TAP → rotate 90°
     pieces[i].wrap.classList.remove('hide');
     pieces[i].rot = (pieces[i].rot + 90) % 360;
     redrawTrayPiece(i);
@@ -1485,7 +1469,6 @@ function endDrag(cx,cy) {
     pieces[i].wrap.style.transform='rotate(15deg)';
     setTimeout(()=>{pieces[i].wrap.style.transform='rotate(0deg)';
       setTimeout(()=>{pieces[i].wrap.style.transition='';},220);},100);
-    showBigPiece(i);
     return;
   }
 
@@ -1531,26 +1514,7 @@ function endDrag(cx,cy) {
   }
 }
 
-let bigPieceIdx = -1;
 
-function showBigPiece(i) {
-  bigPieceIdx = i;
-  const p = pieces[i];
-  const disp = document.getElementById('piece-big-display');
-  disp.innerHTML = '';
-  const sz = Math.min(FS, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.70));
-  const cvs = makeCvsFixed(p.origPoly, p.rot, sz, '#d4a83a', 3);
-  cvs.style.display = 'block';
-  disp.appendChild(cvs);
-  disp.style.display = 'block';
-}
-
-function hideBigPiece() {
-  bigPieceIdx = -1;
-  const disp = document.getElementById('piece-big-display');
-  disp.style.display = 'none';
-  disp.innerHTML = '';
-}
 
 document.addEventListener('pointerup',     e=>{ e.preventDefault(); endDrag(e.clientX,e.clientY); }, {passive:false, capture:true});
 document.addEventListener('pointercancel', e=>{ if(dIdx!==-1){pieces[dIdx].wrap.classList.remove('hide');dIdx=-1;ghost.style.display='none';} }, {capture:true});
