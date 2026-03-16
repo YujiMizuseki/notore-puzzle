@@ -440,32 +440,19 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   border: 1.5px solid #b8973a;
 }
 #top-confirm-cancel:hover { background: #b8973a; color: #fff; }
-#piece-preview-ov {
+#piece-big-display {
   display: none;
-  position: fixed; inset: 0; z-index: 6000;
-  background: rgba(0,0,0,.52);
-  align-items: center; justify-content: center;
-  flex-direction: column; gap: 14px;
-}
-#piece-preview-ov.show { display: flex; }
-#piece-preview-inner {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4000;
   border: 3px solid #b8973a;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  box-shadow: 0 8px 40px rgba(0,0,0,.45);
   background: #fff8f0;
-  /* canvas size is set by JS */
+  cursor: pointer;
 }
-#piece-preview-rotate {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 1rem; letter-spacing: .15em;
-  padding: 12px 32px; border: none;
-  background: linear-gradient(135deg, #3a2810, #2c1f14);
-  color: #f5f0e8; border-radius: 6px;
-  cursor: pointer; touch-action: manipulation;
-  box-shadow: 0 3px 12px rgba(0,0,0,.35);
-}
-#piece-preview-rotate:active { transform: scale(.95); }
 #bgm-btn {
   position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
   background: none; border: 1px solid #b8973a; border-radius: 50%;
@@ -563,10 +550,7 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   <button id="next-btn">次のレベルへ →</button>
 </div>
 
-<div id="piece-preview-ov" onclick="handlePreviewOvClick(event)">
-  <div id="piece-preview-inner"></div>
-  <button id="piece-preview-rotate" onclick="event.stopPropagation();rotatePreviewing()">↻ 回転</button>
-</div>
+<div id="piece-big-display" onclick="hideBigPiece()"></div>
 <div id="top-confirm-ov">
   <div id="top-confirm-box">
     <p>TOPへ戻りますか？</p>
@@ -942,7 +926,7 @@ function build(level) {
   clearPendingTimeouts();
   levelScore = 0; updateScoreDisplay();
   stopTimer(); placed=0; dIdx=-1; ghost.style.display='none';
-  if(typeof closePiecePreview==='function') closePiecePreview();
+  if(typeof hideBigPiece==='function') hideBigPiece();
   fieldEl.innerHTML=''; trayEl.innerHTML='';
   // reset UI
   document.getElementById('tray').style.cssText = '';
@@ -1460,6 +1444,7 @@ document.addEventListener('pointerdown', e=>{
   ghost.style.cssText=`display:block;left:${e.clientX-dOX}px;top:${e.clientY-dOY}px;touch-action:none;`;
   wrap.classList.add('hide');
   dIdx=i;
+  hideBigPiece();
   sndPickup();
 }, {passive:false, capture:true});
 
@@ -1492,9 +1477,15 @@ function endDrag(cx,cy) {
   pieces.forEach(p=>{if(!p.done)drawSlotCvs(p.slotCvs,p.poly,FS,false);});
 
   if(!pointerMoved) {
-    // TAP → show 100% preview
+    // TAP → rotate 90° + show big
     pieces[i].wrap.classList.remove('hide');
-    showPiecePreview(i);
+    pieces[i].rot = (pieces[i].rot + 90) % 360;
+    redrawTrayPiece(i);
+    pieces[i].wrap.style.transition='transform .2s';
+    pieces[i].wrap.style.transform='rotate(15deg)';
+    setTimeout(()=>{pieces[i].wrap.style.transform='rotate(0deg)';
+      setTimeout(()=>{pieces[i].wrap.style.transition='';},220);},100);
+    showBigPiece(i);
     return;
   }
 
@@ -1540,41 +1531,25 @@ function endDrag(cx,cy) {
   }
 }
 
-let previewIdx = -1;
+let bigPieceIdx = -1;
 
-function showPiecePreview(i) {
-  if(previewIdx === i) { closePiecePreview(); return; } // same piece → close
-  previewIdx = i;
-  renderPiecePreview();
-  document.getElementById('piece-preview-ov').classList.add('show');
-}
-
-function renderPiecePreview() {
-  if(previewIdx < 0) return;
-  const p = pieces[previewIdx];
-  const inner = document.getElementById('piece-preview-inner');
-  inner.innerHTML = '';
-  const sz = Math.min(FS, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.72));
+function showBigPiece(i) {
+  bigPieceIdx = i;
+  const p = pieces[i];
+  const disp = document.getElementById('piece-big-display');
+  disp.innerHTML = '';
+  const sz = Math.min(FS, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.70));
   const cvs = makeCvsFixed(p.origPoly, p.rot, sz, '#d4a83a', 3);
   cvs.style.display = 'block';
-  inner.appendChild(cvs);
+  disp.appendChild(cvs);
+  disp.style.display = 'block';
 }
 
-function rotatePreviewing() {
-  if(previewIdx < 0) return;
-  pieces[previewIdx].rot = (pieces[previewIdx].rot + 90) % 360;
-  redrawTrayPiece(previewIdx);
-  renderPiecePreview();
-}
-
-function closePiecePreview() {
-  previewIdx = -1;
-  document.getElementById('piece-preview-ov').classList.remove('show');
-  document.getElementById('piece-preview-inner').innerHTML = '';
-}
-
-function handlePreviewOvClick(e) {
-  if(e.target === document.getElementById('piece-preview-ov')) closePiecePreview();
+function hideBigPiece() {
+  bigPieceIdx = -1;
+  const disp = document.getElementById('piece-big-display');
+  disp.style.display = 'none';
+  disp.innerHTML = '';
 }
 
 document.addEventListener('pointerup',     e=>{ e.preventDefault(); endDrag(e.clientX,e.clientY); }, {passive:false, capture:true});
