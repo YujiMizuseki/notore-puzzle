@@ -234,6 +234,19 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
 #clear-ov.show { display: block; }
 #clear-ov h2 { font-size:1.7rem; color:#8b2020; letter-spacing:.2em; margin-bottom:6px; }
 #clear-ov p  { font-size:1rem; color:#5a3010; opacity:.85; margin-bottom:16px; }
+#clear-msg-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  gap:8px; margin-bottom:16px; width:100%;
+}
+#clear-time {
+  font-family:'Noto Serif JP',serif; font-size:.9rem;
+  color:#5a3010; opacity:.9;
+}
+#clear-score {
+  font-family:'Noto Serif JP',serif; font-size:1.15rem; font-weight:700;
+  color:#22aa22; white-space:nowrap; text-align:right;
+  -webkit-text-stroke:4px white; paint-order:stroke fill;
+}
 #next-btn {
   font-family:'Noto Serif JP',serif; font-size:1rem;
   padding:12px 28px; border:none;
@@ -488,7 +501,10 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
 
 <div id="clear-ov">
   <h2 id="clear-title">✨ 完成 ✨</h2>
-  <p id="clear-msg"></p>
+  <div id="clear-msg-row">
+    <span id="clear-time"></span>
+    <span id="clear-score"></span>
+  </div>
   <button id="next-btn">次のレベルへ →</button>
 </div>
 
@@ -1553,7 +1569,8 @@ function onClear(){ sndClear();
     updateScoreDisplay();
     saveHi(levelScore, lv);
     showScorePopup(levelScore);
-    document.getElementById('clear-msg').textContent = `クリアタイム：${elapsed()}　＋${levelScore.toLocaleString()}pt`;
+    document.getElementById('clear-time').textContent = `クリアタイム：${elapsed()}`;
+    document.getElementById('clear-score').textContent = `＋${levelScore.toLocaleString()} pt`;
     const ov = document.getElementById('clear-ov');
     ov.classList.add('show');
   }, 900);
