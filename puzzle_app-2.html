@@ -447,6 +447,56 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
+
+/* ===== DEBUG MODE ===== */
+#debug-toggle {
+  position: absolute; bottom: 14px; right: 14px;
+  font-size: .68rem; font-family: monospace;
+  background: transparent; border: 1px solid rgba(184,151,58,.35);
+  color: rgba(184,151,58,.5); border-radius: 4px;
+  padding: 3px 8px; cursor: pointer; letter-spacing: .05em;
+  touch-action: manipulation;
+}
+#debug-toggle.on {
+  background: #2c1f14; border-color: #f0c040;
+  color: #f0c040;
+}
+#debug-panel {
+  display: none;
+  width: 100%; max-width: 360px;
+  background: rgba(44,31,20,.85);
+  border: 1.5px solid #f0c040;
+  border-radius: 8px;
+  padding: 12px 14px 14px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+#debug-panel.show { display: block; }
+.debug-label {
+  font-family: monospace; font-size: .72rem;
+  color: #f0c040; letter-spacing: .15em;
+  margin-bottom: 8px;
+}
+#debug-lv-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+.debug-lv-btn {
+  font-family: monospace; font-size: .78rem;
+  background: #3a2810; color: #f0c040;
+  border: 1px solid rgba(240,192,64,.4);
+  border-radius: 4px; padding: 6px 2px;
+  cursor: pointer; touch-action: manipulation;
+}
+.debug-lv-btn:hover, .debug-lv-btn:active {
+  background: #f0c040; color: #1a0a00;
+}
+#debug-inf-label {
+  font-family: monospace; font-size: .75rem;
+  color: #4ecdc4; margin-top: 8px; letter-spacing: .1em;
+}
+
 .score-popup {
   position:fixed; pointer-events:none; z-index:9000;
   font-family:'Noto Serif JP',serif; font-weight:700;
@@ -585,7 +635,13 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
         <p class="howto-note">レベルが上がるほど得点UP 🌸</p>
       </div>
     </div>
-    <button id="start-btn">ゲームスタート</button>
+      <button id="start-btn">ゲームスタート</button>
+  <button id="debug-toggle" title="DEBUG">DEBUG</button>
+  <div id="debug-panel">
+    <p class="debug-label">[ DEBUG ] 面を選んでスタート</p>
+    <div id="debug-lv-grid"></div>
+    <p id="debug-inf-label">⏱ TIME 無制限</p>
+  </div>
   </div>
 </div>
 <!-- time over screen -->
@@ -703,6 +759,8 @@ let FS          = 0;   // field size px
 let pieces      = [];  // {poly, slotCvs, wrap, done, rot, targetRot}
 let dIdx        = -1;  // drag piece index
 let activePieceIdx = -1; // tray piece enlarged to 30%
+let debugMode = false;
+
 let dOX = 0, dOY = 0; // drag offset
 let pendingTimeouts = []; // track setTimeout IDs to cancel on level change
 let totalScore  = 0;  // cumulative score across levels
@@ -1658,8 +1716,8 @@ function startTimer(){
     const rem=TIME_LIMIT-s;
     const timerEl=document.getElementById('timer');
     if(rem<=30) timerEl.classList.add('urgent'); else timerEl.classList.remove('urgent');
-    document.getElementById('tval').textContent = rem > 0 ? rem : 0;
-    if(s>=TIME_LIMIT){ clearInterval(timerID); onTimeout(); }
+    document.getElementById('tval').textContent = debugMode ? '∞' : (rem > 0 ? rem : 0);
+    if(!debugMode && s>=TIME_LIMIT){ clearInterval(timerID); onTimeout(); }
   },500);
 }
 function stopTimer(){clearInterval(timerID);}
@@ -1735,6 +1793,34 @@ function onClear(){ sndClear();
     if(lv === COUNTS.length - 1) { safeTimeout(()=>{ ov.classList.remove('show'); showAllClear(); }, 1800); }
   }, 900);
 }
+
+
+// ── DEBUG ──
+(function(){
+  const tog = document.getElementById('debug-toggle');
+  const panel = document.getElementById('debug-panel');
+  const grid = document.getElementById('debug-lv-grid');
+
+  // Build level buttons
+  for(let i=0;i<25;i++){
+    const btn = document.createElement('button');
+    btn.className = 'debug-lv-btn';
+    btn.textContent = 'Lv' + (i+1);
+    btn.addEventListener('click', ()=>{
+      lv = i;
+      debugMode = true;
+      document.getElementById('title-ov').style.display = 'none';
+      loadAndBuild(lv);
+    });
+    grid.appendChild(btn);
+  }
+
+  tog.addEventListener('click', ()=>{
+    debugMode = !debugMode;
+    tog.classList.toggle('on', debugMode);
+    panel.classList.toggle('show', debugMode);
+  });
+})();
 
 document.getElementById('allclear-back-btn').addEventListener('click',()=>{
   document.getElementById('allclear-ov').classList.remove('show');
