@@ -440,6 +440,32 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   border: 1.5px solid #b8973a;
 }
 #top-confirm-cancel:hover { background: #b8973a; color: #fff; }
+#piece-preview-ov {
+  display: none;
+  position: fixed; inset: 0; z-index: 6000;
+  background: rgba(0,0,0,.52);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px;
+}
+#piece-preview-ov.show { display: flex; }
+#piece-preview-inner {
+  border: 3px solid #b8973a;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  background: #fff8f0;
+  /* canvas size is set by JS */
+}
+#piece-preview-rotate {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem; letter-spacing: .15em;
+  padding: 12px 32px; border: none;
+  background: linear-gradient(135deg, #3a2810, #2c1f14);
+  color: #f5f0e8; border-radius: 6px;
+  cursor: pointer; touch-action: manipulation;
+  box-shadow: 0 3px 12px rgba(0,0,0,.35);
+}
+#piece-preview-rotate:active { transform: scale(.95); }
 #bgm-btn {
   position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
   background: none; border: 1px solid #b8973a; border-radius: 50%;
@@ -537,6 +563,10 @@ header p  { font-size:.85rem; color:#b8973a; letter-spacing:.2em; margin-top:3px
   <button id="next-btn">次のレベルへ →</button>
 </div>
 
+<div id="piece-preview-ov" onclick="handlePreviewOvClick(event)">
+  <div id="piece-preview-inner"></div>
+  <button id="piece-preview-rotate" onclick="event.stopPropagation();rotatePreviewing()">↻ 回転</button>
+</div>
 <div id="top-confirm-ov">
   <div id="top-confirm-box">
     <p>TOPへ戻りますか？</p>
@@ -912,6 +942,7 @@ function build(level) {
   clearPendingTimeouts();
   levelScore = 0; updateScoreDisplay();
   stopTimer(); placed=0; dIdx=-1; ghost.style.display='none';
+  if(typeof closePiecePreview==='function') closePiecePreview();
   fieldEl.innerHTML=''; trayEl.innerHTML='';
   // reset UI
   document.getElementById('tray').style.cssText = '';
@@ -1461,15 +1492,9 @@ function endDrag(cx,cy) {
   pieces.forEach(p=>{if(!p.done)drawSlotCvs(p.slotCvs,p.poly,FS,false);});
 
   if(!pointerMoved) {
-    // TAP → rotate 90°
+    // TAP → show 100% preview
     pieces[i].wrap.classList.remove('hide');
-    pieces[i].rot = (pieces[i].rot + 90) % 360;
-    redrawTrayPiece(i);
-    // rotate animation
-    pieces[i].wrap.style.transition='transform .2s';
-    pieces[i].wrap.style.transform='rotate(15deg)';
-    setTimeout(()=>{pieces[i].wrap.style.transform='rotate(0deg)';
-      setTimeout(()=>{pieces[i].wrap.style.transition='';},220);},100);
+    showPiecePreview(i);
     return;
   }
 
@@ -1513,6 +1538,43 @@ function endDrag(cx,cy) {
       },150);
     }
   }
+}
+
+let previewIdx = -1;
+
+function showPiecePreview(i) {
+  if(previewIdx === i) { closePiecePreview(); return; } // same piece → close
+  previewIdx = i;
+  renderPiecePreview();
+  document.getElementById('piece-preview-ov').classList.add('show');
+}
+
+function renderPiecePreview() {
+  if(previewIdx < 0) return;
+  const p = pieces[previewIdx];
+  const inner = document.getElementById('piece-preview-inner');
+  inner.innerHTML = '';
+  const sz = Math.min(FS, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.72));
+  const cvs = makeCvsFixed(p.origPoly, p.rot, sz, '#d4a83a', 3);
+  cvs.style.display = 'block';
+  inner.appendChild(cvs);
+}
+
+function rotatePreviewing() {
+  if(previewIdx < 0) return;
+  pieces[previewIdx].rot = (pieces[previewIdx].rot + 90) % 360;
+  redrawTrayPiece(previewIdx);
+  renderPiecePreview();
+}
+
+function closePiecePreview() {
+  previewIdx = -1;
+  document.getElementById('piece-preview-ov').classList.remove('show');
+  document.getElementById('piece-preview-inner').innerHTML = '';
+}
+
+function handlePreviewOvClick(e) {
+  if(e.target === document.getElementById('piece-preview-ov')) closePiecePreview();
 }
 
 document.addEventListener('pointerup',     e=>{ e.preventDefault(); endDrag(e.clientX,e.clientY); }, {passive:false, capture:true});
