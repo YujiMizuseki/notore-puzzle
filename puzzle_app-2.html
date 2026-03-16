@@ -594,6 +594,7 @@ let img         = null;
 let FS          = 0;   // field size px
 let pieces      = [];  // {poly, slotCvs, wrap, done, rot, targetRot}
 let dIdx        = -1;  // drag piece index
+let activePieceIdx = -1; // tray piece enlarged to 30%
 let dOX = 0, dOY = 0; // drag offset
 let pendingTimeouts = []; // track setTimeout IDs to cancel on level change
 let totalScore  = 0;  // cumulative score across levels
@@ -897,7 +898,8 @@ function makeCvsFixed(origPoly, rot, TSZ, stroke, lw) {
 /* ═══════════════ REDRAW TRAY PIECE ════ */
 function redrawTrayPiece(i) {
   const p = pieces[i];
-  const TSZ = Math.round(FS * 0.30);
+  const ratio = (i === activePieceIdx) ? 0.30 : 0.20;
+  const TSZ = Math.round(FS * ratio);
   // pass origPoly + rot so image maps correctly then rotates
   const newCvs = makeCvsFixed(p.origPoly, p.rot, TSZ, 'rgba(184,151,58,.7)', 1.5);
   newCvs.style.cssText = 'display:block;touch-action:none;';
@@ -911,7 +913,7 @@ function redrawTrayPiece(i) {
 function build(level) {
   clearPendingTimeouts();
   levelScore = 0; updateScoreDisplay();
-  stopTimer(); placed=0; dIdx=-1; ghost.style.display='none';
+  stopTimer(); placed=0; dIdx=-1; activePieceIdx=-1; ghost.style.display='none';
   fieldEl.innerHTML=''; trayEl.innerHTML='';
   // reset UI
   document.getElementById('tray').style.cssText = '';
@@ -1429,6 +1431,7 @@ document.addEventListener('pointerdown', e=>{
   ghost.style.cssText=`display:block;left:${e.clientX-dOX}px;top:${e.clientY-dOY}px;touch-action:none;`;
   wrap.classList.add('hide');
   dIdx=i;
+  if(activePieceIdx===i){ activePieceIdx=-1; }
   sndPickup();
 }, {passive:false, capture:true});
 
@@ -1461,14 +1464,24 @@ function endDrag(cx,cy) {
   pieces.forEach(p=>{if(!p.done)drawSlotCvs(p.slotCvs,p.poly,FS,false);});
 
   if(!pointerMoved) {
-    // TAP → rotate 90°
+    // TAP: 1st tap = enlarge to 30%, 2nd tap on same = rotate
     pieces[i].wrap.classList.remove('hide');
-    pieces[i].rot = (pieces[i].rot + 90) % 360;
-    redrawTrayPiece(i);
-    pieces[i].wrap.style.transition='transform .2s';
-    pieces[i].wrap.style.transform='rotate(15deg)';
-    setTimeout(()=>{pieces[i].wrap.style.transform='rotate(0deg)';
-      setTimeout(()=>{pieces[i].wrap.style.transition='';},220);},100);
+    if(activePieceIdx !== i) {
+      // deactivate previous
+      if(activePieceIdx >= 0 && activePieceIdx < pieces.length && !pieces[activePieceIdx].done) {
+        redrawTrayPiece(activePieceIdx);
+      }
+      activePieceIdx = i;
+      redrawTrayPiece(i); // redraws at 30%
+    } else {
+      // 2nd tap: rotate
+      pieces[i].rot = (pieces[i].rot + 90) % 360;
+      redrawTrayPiece(i);
+      pieces[i].wrap.style.transition='transform .2s';
+      pieces[i].wrap.style.transform='rotate(15deg)';
+      setTimeout(()=>{pieces[i].wrap.style.transform='rotate(0deg)';
+        setTimeout(()=>{pieces[i].wrap.style.transition='';},220);},100);
+    }
     return;
   }
 
