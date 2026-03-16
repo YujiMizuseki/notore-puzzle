@@ -127,18 +127,26 @@ header p  { font-size:.9rem; color:#b8973a; letter-spacing:.2em; margin-top:2px;
   -webkit-overflow-scrolling: touch;
 }
 /* corner ornaments */
-#title-ov::before, #title-ov::after {
+#title-ov::before {
   content: "";
   position: absolute;
+  top: 12px; left: 12px;
   width: min(45vw,180px); height: min(45vw,180px);
   border: 2px solid #b8973a;
+  border-right: none; border-bottom: none;
   opacity: .3;
   pointer-events: none;
 }
-#title-ov::before { top: 12px; left: 12px;
-  border-right: none; border-bottom: none; }
-#title-ov::after  { bottom: 12px; right: 12px;
-  border-left: none; border-top: none; }
+.br-ornament {
+  width: min(45vw,180px); height: min(45vw,180px);
+  border: 2px solid #b8973a;
+  border-left: none; border-top: none;
+  opacity: .3;
+  pointer-events: none;
+  align-self: flex-end;
+  flex-shrink: 0;
+  margin-top: 12px;
+}
 .title-crest { font-size:1.6rem; color:#b8973a; opacity:.85;
   letter-spacing:.4em; margin-bottom:6px; }
 #title-ov h1 {
@@ -657,6 +665,7 @@ header p  { font-size:.9rem; color:#b8973a; letter-spacing:.2em; margin-top:2px;
     <div id="debug-time-grid"></div>
   </div>
   </div>
+  <div class="br-ornament"></div>
 </div>
 <!-- time over screen -->
 <div id="timeout-ov" style="display:none">
